@@ -1,4 +1,3 @@
-//const { default: mongoose } = require('mongoose');
 const mongooose = require('mongoose');
 let speakerSchema = new mongooose.Schema({
     _id:mongooose.ObjectId,

@@ -1,1 +1,0 @@
-const Speaker = require('../Models/speakerModel');

@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 const eventRouter = require('./Routers/eventRouter');
 const authRouter = require('./Routers/authRouter');
 const studentRouter = require('./Routers/studentRouter');
-//const speakerRouter = require('./Routers/speakerRouter');
+const speakerRouter = require('./Routers/speakerRouter');
 
 const Server = express();
 mongoose.connect('mongodb://localhost/eventSystemDB')
@@ -33,7 +33,7 @@ Server.use(bodyParser.urlencoded({extended: false}));
 Server.use(authRouter);
 Server.use(eventRouter);
 Server.use(studentRouter);
-//Server.use(speakerRouter);
+Server.use(speakerRouter);
 
 //Not Found MW
 Server.use((req, res, next) => {
