@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
-const Student = require('./../Controllers/studentController');
-const Speaker = require('./../Controllers/spekerController');
+const Student = require('./../Models/studentModel');
+const Speaker = require('./../Models/speakerModel');
 
 module.exports.login = (req,res,next)=>{
     let token;
@@ -56,6 +56,8 @@ module.exports.login = (req,res,next)=>{
                 next(err);
             });
         });
+
+        
     } 
 }
 

@@ -2,6 +2,11 @@ const {validationResult}=require("express-validator");
 const Student = require('./../Models/studentModel');
 
 module.exports.getAllStudents = (req, res,next) => {
+    if(req.role != 'admin'){
+        let error = new Error('You are not authorized to perform this action!');
+        error.statusCode = 401;
+        throw error;
+    }
     Student.find({})
         .then(students => {
             res.status(200).json({
@@ -15,6 +20,7 @@ module.exports.getAllStudents = (req, res,next) => {
 };
 
 module.exports.createStudent = (req, res,next) => {
+    
     let result = validationResult(req);
     if (!result.isEmpty()) {
         let message = result.array().reduce((current, error) => current + error.msg + '\n', '');
@@ -40,6 +46,11 @@ module.exports.createStudent = (req, res,next) => {
 };
 
 module.exports.deleteStudent = (req, res,next) => {
+    if(req.role != 'admin'){
+        let error = new Error('You are not authorized to perform this action!');
+        error.statusCode = 401;
+        throw error;
+    }
     Student.findByIdAndRemove(req.body.id)
         .then(result => {
             if(result.deletedCount==0)
@@ -63,6 +74,23 @@ module.exports.updateStudent = (req, res,next) => {
         error.statusCode = 422;
         throw error;
     }
+    if(req.role == 'admin'){
+        Student.findByIdAndUpdate(req.body.id, {
+            email: req.body.email
+        })
+            .then(result => {
+                res.status(200).json({
+                    message: 'Student updated successfully!',
+                    student: result
+                });
+                result.save();
+            })
+            .catch(err => {
+                next(err);
+            });
+
+    }
+    else if(req.role == 'student'){
     Student.findByIdAndUpdate(req.body.id, {
         email: req.body.email,
         password: req.body.password
@@ -72,10 +100,18 @@ module.exports.updateStudent = (req, res,next) => {
                 message: 'Student updated successfully!',
                 student: result
             });
+            result.save()
         })
         .catch(err => {
             next(err);
         });
+    }
+    else{
+            let error = new Error('You are not authorized to perform this action!');
+            error.statusCode = 401;
+            throw error;
+        }
+
 }
 
 module.exports.getStudentById = (req, res,next) => {

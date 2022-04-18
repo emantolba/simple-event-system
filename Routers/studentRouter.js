@@ -1,8 +1,10 @@
 const express = require('express');
 const {body,param,query} = require('express-validator');
-
+const authMW = require('./../MiddleWares/authMiddleWare');
 const router = express.Router();
 const studentController = require('../Controllers/studentController');
+
+router.use(authMW);
 
 router.route('/students/:id')
     .get(studentController.getStudentById)

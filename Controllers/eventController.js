@@ -3,6 +3,12 @@ const Event = require('./../Models/eventModel');
 
 
 module.exports.getAllEvents = (req, res,next) => {
+    console.log(req.role);
+    if(req.role != 'admin'){
+        let error = new Error('You are not authorized to perform this action!');
+        error.statusCode = 401;
+        throw error;
+    }
     Event.find({})
         .then(events => {
             res.status(200).json({
@@ -16,6 +22,11 @@ module.exports.getAllEvents = (req, res,next) => {
 };
 
 module.exports.createEvent = (req, res,next) => {
+    if(req.role != 'admin'){
+        let error = new Error('You are not authorized to perform this action!');
+        error.statusCode = 401;
+        throw error;
+    }
     let result = validationResult(req);
     if (!result.isEmpty()) {
         let message = result.array().reduce((current, error) => current + error.msg + '\n', '');
@@ -46,6 +57,11 @@ module.exports.createEvent = (req, res,next) => {
 }
 
 module.exports.deleteEvent = (req, res,next) => {
+    if(req.role != 'admin'){
+        let error = new Error('You are not authorized to perform this action!');
+        error.statusCode = 401;
+        throw error;
+    }
     Event.findByIdAndRemove(req.body.id)
         .then(result => {
             if(result.deletedCount==0)
@@ -62,6 +78,11 @@ module.exports.deleteEvent = (req, res,next) => {
 }
   
 module.exports.updateEvent = (req, res,next) => {
+    if(req.role != 'admin'){
+        let error = new Error('You are not authorized to perform this action!');
+        error.statusCode = 401;
+        throw error;
+    }
     let result = validationResult(req);
     if (!result.isEmpty()) {
         let message = result.array().reduce((current, error) => current + error.msg + '\n', '');
@@ -84,6 +105,7 @@ module.exports.updateEvent = (req, res,next) => {
                 message: 'Event updated successfully!',
                 event: result
             });
+            result.save()
         })
         .catch(err => {
             next(err);
@@ -91,6 +113,11 @@ module.exports.updateEvent = (req, res,next) => {
 }
 
 module.exports.addStudentToEvent=(req,res,next)=>{
+    if(req.role != 'admin'){
+        let error = new Error('You are not authorized to perform this action!');
+        error.statusCode = 401;
+        throw error;
+    }
     Event.findById(req.body.id)
         .then(result => {
             if(result.matchedCount==0)
@@ -110,6 +137,11 @@ module.exports.addStudentToEvent=(req,res,next)=>{
 }
 
 module.exports.addSpeakerToEvent=(req,res,next)=>{
+    if(req.role != 'admin'){
+        let error = new Error('You are not authorized to perform this action!');
+        error.statusCode = 401;
+        throw error;
+    }
     Event.findById(req.body.id)
         .then(result => {
             if(result.matchedCount==0)

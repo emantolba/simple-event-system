@@ -1,9 +1,10 @@
 const express = require('express');
 const {body,param,query} = require('express-validator');
-
+const authMW = require('./../MiddleWares/authMiddleWare');
 const router = express.Router();
 const eventController = require('../Controllers/eventController');
 
+router.use(authMW);
 
 router.route('/events')
     .get(eventController.getAllEvents)
