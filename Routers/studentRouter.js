@@ -8,7 +8,7 @@ router.use(authMW);
 
 router.route('/students/:id')
     .get(studentController.getStudentById)
-    .post([body('id').isInt().withMessage('id must be an integer')],studentController.updateStudent)
+    .put([body('id').isInt().withMessage('id must be an integer')],studentController.updateStudent)
     .delete([body('id').isInt().withMessage('id must be an integer')],studentController.deleteStudent);
 
 router.route('/students')

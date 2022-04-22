@@ -4,8 +4,8 @@ let eventSchema = new mongooose.Schema({
     _id:Number,
     title:{type:String,required:true},
     eventDate:{type:String,required:true},
-    mainSpeakerId:{type:mongooose.ObjectId},
-    otherSpeakersIds:[{type:mongooose.ObjectId}],
-    studentsIds:[{type:Number}]
+    mainSpeakerId:{type:mongooose.ObjectId,ref:'speakers'},
+    otherSpeakersIds:[{type:mongooose.ObjectId,ref:'speakers'}],
+    studentsIds:[{type:Number,ref:'students'}],
 });
 module.exports=mongooose.model('events',eventSchema);
