@@ -9,7 +9,7 @@ module.exports.getAllEvents = (req, res,next) => {
         error.statusCode = 401;
         throw error;
     }
-    Event.find({})
+    Event.find({}).populate({path:"mainSpeakerId"}).populate({path:"otherSpeakersIds"}).populate({path:"studentsIds"})
         .then(events => {
             res.status(200).json({
                 message: 'Events fetched successfully!',
@@ -20,7 +20,6 @@ module.exports.getAllEvents = (req, res,next) => {
             next(err);
         });
 };
-
 module.exports.createEvent = (req, res,next) => {
     if(req.role != 'admin'){
         let error = new Error('You are not authorized to perform this action!');
@@ -160,4 +159,67 @@ module.exports.addSpeakerToEvent=(req,res,next)=>{
         .catch(err => {
             next(err);
         });
+}
+
+module.exports.getEventsForSpeaker=(req,res,next)=>{
+    // if(req.role != 'admin'|| req.role != 'speaker'){
+    //     let error = new Error('You are not authorized to perform this action!');
+    //     error.statusCode = 401;
+    //     throw error;
+    // }
+    if(req.role == 'admin' || req.role == 'speaker'){
+    Event.find({otherSpeakersIds:req.params.id})
+        .then(result => {
+            if(result.matchedCount==0)
+               {
+                   Event.find({mainSpeakerId:req.params.id})
+                     .then(result=>{
+                            res.status(200).json({
+                                message: 'Events fetched successfully!',
+                                events: result
+                            });
+                        })
+                        .catch(err => {
+                            err = new Error('Event not found!');
+                            err.statusCode = 500;
+                            throw err;
+                        });
+               }
+            res.status(200).json({
+                message: 'Events fetched successfully!',
+                events: result
+            });
+        })
+        .catch(err => {
+            next(err);
+        });
+    }
+
+}
+
+module.exports.getEventsForStudent=(req,res,next)=>{
+    // if(req.role != 'admin'|| req.role != 'student'){
+    //     let error = new Error('You are not authorized to perform this action!');
+    //     error.statusCode = 401;
+    //     throw error;
+    // }
+    if(req.role == 'admin' || req.role == 'student'){
+    Event.find({studentsIds:req.params.id})
+        .then(result => {
+            if(result.matchedCount==0)
+                throw new Error('Event not found!');
+            res.status(200).json({
+                message: 'Events fetched successfully!',
+                events: result
+            });
+        })
+        .catch(err => {
+            next(err);
+        });
+    }
+    else{
+        let error = new Error('You are not authorized to perform this action!');
+        error.statusCode = 401;
+        throw error;
+    }
 }
