@@ -95,10 +95,13 @@ module.exports.updateEvent = (req, res,next) => {
         mainSpeakerId: req.body.mainSpeakerId,
         otherSpeakersIds: req.body.otherSpeakersIds,
         studentsIds: req.body.studentsIds
-    })
+    }).populate({path:"mainSpeakerId"}).populate({path:"otherSpeakersIds"}).populate({path:"studentsIds"})
         .then(result => {
             if(result.matchedCount==0)
                 throw new Error('Event not found!');
+            // else if(result.matchedCount==null){
+            //     throw new Error('null');
+            // } 
 
             res.status(200).json({
                 message: 'Event updated successfully!',
@@ -107,7 +110,9 @@ module.exports.updateEvent = (req, res,next) => {
             result.save()
         })
         .catch(err => {
-            next(err);
+            // console.log(err);
+            // throw err;
+           next(err);
         });
 }
 
@@ -162,11 +167,7 @@ module.exports.addSpeakerToEvent=(req,res,next)=>{
 }
 
 module.exports.getEventsForSpeaker=(req,res,next)=>{
-    // if(req.role != 'admin'|| req.role != 'speaker'){
-    //     let error = new Error('You are not authorized to perform this action!');
-    //     error.statusCode = 401;
-    //     throw error;
-    // }
+   
     if(req.role == 'admin' || req.role == 'speaker'){
     Event.find({otherSpeakersIds:req.params.id})
         .then(result => {
@@ -198,11 +199,7 @@ module.exports.getEventsForSpeaker=(req,res,next)=>{
 }
 
 module.exports.getEventsForStudent=(req,res,next)=>{
-    // if(req.role != 'admin'|| req.role != 'student'){
-    //     let error = new Error('You are not authorized to perform this action!');
-    //     error.statusCode = 401;
-    //     throw error;
-    // }
+    
     if(req.role == 'admin' || req.role == 'student'){
     Event.find({studentsIds:req.params.id})
         .then(result => {
@@ -222,4 +219,47 @@ module.exports.getEventsForStudent=(req,res,next)=>{
         error.statusCode = 401;
         throw error;
     }
+}
+module.exports.speakerDeclineEvent=(req,res,next)=>{
+    if( req.role != 'speaker'){
+        let error = new Error('You are not authorized to perform this action!');
+        error.statusCode = 401;
+        throw error;
+    }
+    Event.findById(req.body.id)
+        .then(result => {
+            if(result.matchedCount==0)
+                throw new Error('Event not found!');
+            if(result.otherSpeakersIds.includes(req.params.speakerId))
+                { result.otherSpeakersIds.splice(result.otherSpeakersIds.indexOf(req.params.speakerId),1);}
+            else if(result.mainSpeakerId==req.params.speakerId)
+                { result.mainSpeakerId=null;}
+            else{
+                    throw new Error('Speaker not found!');
+                }
+
+            result.save()
+            res.status(200).json({
+                message: 'Speaker declined successfully!',
+                event: result
+            });
+        })
+        .catch(err => {
+            next(err);
+        });
+}
+
+module.exports.getEventById=(req,res,next)=>{
+    Event.findById(req.params.id).populate({path:"mainSpeakerId"}).populate({path:"otherSpeakersIds"}).populate({path:"studentsIds"})
+        .then(result => {
+            if(result.matchedCount==0)
+                throw new Error('Event not found!');
+            res.status(200).json({
+                message: 'Event fetched successfully!',
+                event: result
+            });
+        })
+        .catch(err => {
+            next(err);
+        });
 }

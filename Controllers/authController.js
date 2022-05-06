@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken');
 const Student = require('./../Models/studentModel');
 const Speaker = require('./../Models/speakerModel');
-
+const Cryptr = require('cryptr');
+const Crypto = new Cryptr('myTotalySecretKey');
 module.exports.login = (req,res,next)=>{
     let token;
     if(req.body.email == "admin@gmail.com" && req.body.password == "123"){
@@ -21,7 +22,7 @@ module.exports.login = (req,res,next)=>{
         .then(result=>{
             if(!result)
                 throw new Error('Speaker not found!');
-            if(result.password != req.body.password)
+            if(Crypto.decrypt(result.password) != req.body.password)
                 throw new Error('Wrong password!');
             token = jwt.sign({
                 _id:result._id,

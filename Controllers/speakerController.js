@@ -2,6 +2,8 @@ const Speaker = require('../Models/speakerModel');
 const {validationResult}=require("express-validator");
 const { default: mongoose } = require('mongoose');
 const mongooose = require('mongoose');
+const Cryptr = require('cryptr');
+const Crypto = new Cryptr('myTotalySecretKey');
 
 module.exports.getAllSpeakers = (req, res,next) => {
     if(req.role != 'admin'){
@@ -33,7 +35,7 @@ module.exports.createSpeaker = (req, res,next) => {
         let speaker = new Speaker({
             _id: mongoose.Types.ObjectId(),
             email: req.body.email,
-            password: req.body.password,
+            password: Crypto.encrypt(req.body.password),
             userName: req.body.userName,
             Address: req.body.Address
         });
@@ -95,7 +97,7 @@ module.exports.updateSpeaker = (req, res,next) => {
         Speaker.findByIdAndUpdate(req.body.id,{
             email: req.body.email,
             userName: req.body.userName,
-            password: req.body.password,
+            password: Crypto.encrypt(req.body.password) ,
             Address: req.body.Address
         })
             .then(result => {
@@ -120,6 +122,7 @@ module.exports.getSpeakerById = (req, res,next) => {
         .then(speaker => {
             if(!speaker)
                 throw new Error('Speaker not found!');
+            speaker.password = Crypto.decrypt(speaker.password);
             res.status(200).json({
                 message: 'Speaker fetched successfully!',
                 speaker: speaker

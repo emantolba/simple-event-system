@@ -14,8 +14,9 @@ router.route('/events')
 
 
 router.post('/events/addstudent',[body('id').isInt().withMessage('id must be an integer'),body('studentId').isInt().withMessage('studentId must be an integer')],eventController.addStudentToEvent);
-
+router.get('/events/:id',eventController.getEventById);
 router.post('/events/addspeaker',[body('id').isInt().withMessage('id must be an integer'),body('speakerId').isInt().withMessage('speakerId must be an integer')],eventController.addSpeakerToEvent);
 router.get('/events/speakers/:id',eventController.getEventsForSpeaker);
 router.get('/events/students/:id',eventController.getEventsForStudent);
+router.put('/events/speakers/:speakerId',eventController.speakerDeclineEvent);
 module.exports = router;
