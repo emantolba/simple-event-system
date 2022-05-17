@@ -106,11 +106,12 @@ module.exports.updateStudent = (req, res,next) => {
             next(err);
         });
     }
-    else{
-            let error = new Error('You are not authorized to perform this action!');
-            error.statusCode = 401;
-            throw error;
-        }
+    else
+    {
+        let error = new Error('You are not authorized to perform this action!');
+        error.statusCode = 401;
+        throw error;
+    }
 
 }
 

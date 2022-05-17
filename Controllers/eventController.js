@@ -169,31 +169,31 @@ module.exports.addSpeakerToEvent=(req,res,next)=>{
 module.exports.getEventsForSpeaker=(req,res,next)=>{
    
     if(req.role == 'admin' || req.role == 'speaker'){
-    Event.find({otherSpeakersIds:req.params.id})
-        .then(result => {
-            if(result.matchedCount==0)
-               {
-                   Event.find({mainSpeakerId:req.params.id})
-                     .then(result=>{
-                            res.status(200).json({
-                                message: 'Events fetched successfully!',
-                                events: result
+        Event.find({otherSpeakersIds:req.params.id})
+            .then(result => {
+                if(result.matchedCount==0)
+                {
+                    Event.find({mainSpeakerId:req.params.id})
+                        .then(result=>{
+                                res.status(200).json({
+                                    message: 'Events fetched successfully!',
+                                    events: result
+                                });
+                            })
+                            .catch(err => {
+                                err = new Error('Event not found!');
+                                err.statusCode = 500;
+                                throw err;
                             });
-                        })
-                        .catch(err => {
-                            err = new Error('Event not found!');
-                            err.statusCode = 500;
-                            throw err;
-                        });
-               }
-            res.status(200).json({
-                message: 'Events fetched successfully!',
-                events: result
+                }
+                res.status(200).json({
+                    message: 'Events fetched successfully!',
+                    events: result
+                });
+            })
+            .catch(err => {
+                next(err);
             });
-        })
-        .catch(err => {
-            next(err);
-        });
     }
 
 }
@@ -262,4 +262,62 @@ module.exports.getEventById=(req,res,next)=>{
         .catch(err => {
             next(err);
         });
+}
+module.exports.deleteStudentFromEvent=(req,res,next)=>{
+    if(req.role != 'admin'){
+        let error = new Error('You are not authorized to perform this action!');
+        error.statusCode = 401;
+        throw error;
+    }
+    Event.findById(req.body.id)
+        .then(result => {
+            if(result.matchedCount==0)
+            {
+                throw new Error('Event not found!');    
+            }
+            if(result.studentsIds.includes(req.body.studentId)){
+                result.studentsIds.splice(result.studentsIds.indexOf(req.body.studentId),1);    
+            }
+            else{
+                throw new Error('Student not found!');
+            }
+            result.save()
+            res.status(200).json({
+                message: 'Student removed successfully!',
+                event: result
+            });
+        })
+        .catch(err => {
+            next(err);
+        }
+    );
+}
+module.exports.deleteSpeakerFromEvent=(req,res,next)=>{
+    if(req.role != 'admin'){
+        let error = new Error('You are not authorized to perform this action!');
+        error.statusCode = 401;
+        throw error;
+    }
+    Event.findById(req.body.id)
+        .then(result => {
+            if(result.matchedCount==0)
+            {
+                throw new Error('Event not found!');    
+            }
+            if(result.otherSpeakersIds.includes(req.body.speakerId)){
+                result.otherSpeakersIds.splice(result.otherSpeakersIds.indexOf(req.body.speakerId),1);    
+            }
+            else{
+                throw new Error('Speaker not found!');
+            }
+            result.save()
+            res.status(200).json({
+                message: 'Speaker removed successfully!',
+                event: result
+            });
+        })
+        .catch(err => {
+            next(err);
+        }
+    );
 }

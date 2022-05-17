@@ -33,7 +33,7 @@ module.exports.login = (req,res,next)=>{
             {
                 expiresIn: '1h'
             });
-            res.status(200).json({message:"Speaker login successfully!",token:token});
+            res.status(200).json({message:"Speaker login successfully!",token:token,user:result});
         })
         .catch(err=>{
             Student.findOne({email:req.body.email})
@@ -51,7 +51,7 @@ module.exports.login = (req,res,next)=>{
                 {
                     expiresIn: '1h'
                 });
-                res.status(200).json({message:"Student login successfully!",token:token});
+                res.status(200).json({message:"Student login successfully!",token:token,user:result});
             })
             .catch(err=>{
                 next(err);
